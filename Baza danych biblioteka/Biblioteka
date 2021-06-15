@@ -1,0 +1,981 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 13.2
+-- Dumped by pg_dump version 13.2
+
+-- Started on 2021-06-08 20:38:48
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+DROP DATABASE projekt;
+--
+-- TOC entry 3060 (class 1262 OID 524723)
+-- Name: projekt; Type: DATABASE; Schema: -; Owner: postgres
+--
+
+CREATE DATABASE projekt WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE = 'Polish_Poland.1250';
+
+
+ALTER DATABASE projekt OWNER TO postgres;
+
+\connect projekt
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- TOC entry 4 (class 2615 OID 524724)
+-- Name: biblioteka; Type: SCHEMA; Schema: -; Owner: postgres
+--
+
+CREATE SCHEMA biblioteka;
+
+
+ALTER SCHEMA biblioteka OWNER TO postgres;
+
+--
+-- TOC entry 213 (class 1255 OID 525271)
+-- Name: funkcja_opis(); Type: FUNCTION; Schema: biblioteka; Owner: postgres
+--
+
+CREATE FUNCTION biblioteka.funkcja_opis() RETURNS trigger
+    LANGUAGE plpgsql SECURITY DEFINER
+    AS $$
+BEGIN
+  IF NEW.opis is NULL then 
+NEW.opis := 'Brak opisu';
+END IF;
+RETURN NEW;
+END$$;
+
+
+ALTER FUNCTION biblioteka.funkcja_opis() OWNER TO postgres;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- TOC entry 202 (class 1259 OID 525056)
+-- Name: Autorzy; Type: TABLE; Schema: biblioteka; Owner: postgres
+--
+
+CREATE TABLE biblioteka."Autorzy" (
+    id_autora integer NOT NULL,
+    imie character varying(255) NOT NULL,
+    drugie_imie character varying(255),
+    nazwisko character varying(255) NOT NULL
+);
+
+
+ALTER TABLE biblioteka."Autorzy" OWNER TO postgres;
+
+--
+-- TOC entry 201 (class 1259 OID 525051)
+-- Name: Kategorie; Type: TABLE; Schema: biblioteka; Owner: postgres
+--
+
+CREATE TABLE biblioteka."Kategorie" (
+    id_kategorie integer NOT NULL,
+    nazwa character varying(255) NOT NULL
+);
+
+
+ALTER TABLE biblioteka."Kategorie" OWNER TO postgres;
+
+--
+-- TOC entry 204 (class 1259 OID 525069)
+-- Name: Ksiazki; Type: TABLE; Schema: biblioteka; Owner: postgres
+--
+
+CREATE TABLE biblioteka."Ksiazki" (
+    id_ksiazki integer NOT NULL,
+    id_kategorie integer NOT NULL,
+    tytul character varying(255) NOT NULL,
+    opis character varying(255),
+    id_autora integer NOT NULL,
+    id_wydawnictwa integer,
+    rok_wydania date NOT NULL
+);
+
+
+ALTER TABLE biblioteka."Ksiazki" OWNER TO postgres;
+
+--
+-- TOC entry 207 (class 1259 OID 525090)
+-- Name: Pracownicy; Type: TABLE; Schema: biblioteka; Owner: postgres
+--
+
+CREATE TABLE biblioteka."Pracownicy" (
+    id_pracownika integer NOT NULL,
+    id_stanowiska integer NOT NULL,
+    imie character varying(255) NOT NULL,
+    drugie_imie character varying(255),
+    nazwisko character varying(255) NOT NULL,
+    login character varying(255) NOT NULL,
+    haslo character varying(255) NOT NULL,
+    email character varying(255) NOT NULL,
+    telefon character varying(15) NOT NULL,
+    data_urodzenia date NOT NULL
+);
+
+
+ALTER TABLE biblioteka."Pracownicy" OWNER TO postgres;
+
+--
+-- TOC entry 206 (class 1259 OID 525085)
+-- Name: Stanowisko; Type: TABLE; Schema: biblioteka; Owner: postgres
+--
+
+CREATE TABLE biblioteka."Stanowisko" (
+    id_stanowiska integer NOT NULL,
+    nazwa character varying(255) NOT NULL
+);
+
+
+ALTER TABLE biblioteka."Stanowisko" OWNER TO postgres;
+
+--
+-- TOC entry 205 (class 1259 OID 525077)
+-- Name: Uzytkownicy; Type: TABLE; Schema: biblioteka; Owner: postgres
+--
+
+CREATE TABLE biblioteka."Uzytkownicy" (
+    id_uzytkownika integer NOT NULL,
+    imie character varying(255) NOT NULL,
+    drugie_imie character varying(255),
+    nazwisko character varying(255) NOT NULL,
+    login character varying(255) NOT NULL,
+    haslo character varying(255) NOT NULL,
+    email character varying(255) NOT NULL,
+    telefon character varying(15) NOT NULL,
+    data_urodzenia date NOT NULL
+);
+
+
+ALTER TABLE biblioteka."Uzytkownicy" OWNER TO postgres;
+
+--
+-- TOC entry 203 (class 1259 OID 525064)
+-- Name: Wydawnictwa; Type: TABLE; Schema: biblioteka; Owner: postgres
+--
+
+CREATE TABLE biblioteka."Wydawnictwa" (
+    id_wydawnictwa integer NOT NULL,
+    nazwa character varying(255) NOT NULL
+);
+
+
+ALTER TABLE biblioteka."Wydawnictwa" OWNER TO postgres;
+
+--
+-- TOC entry 208 (class 1259 OID 525098)
+-- Name: Wypozyczenia; Type: TABLE; Schema: biblioteka; Owner: postgres
+--
+
+CREATE TABLE biblioteka."Wypozyczenia" (
+    id_wypozyczenia integer NOT NULL,
+    id_uzytkownika integer NOT NULL,
+    id_ksiazki integer NOT NULL,
+    data_wypozyczenia date NOT NULL,
+    data_oddania date NOT NULL,
+    id_pracownika integer NOT NULL
+);
+
+
+ALTER TABLE biblioteka."Wypozyczenia" OWNER TO postgres;
+
+--
+-- TOC entry 210 (class 1259 OID 525160)
+-- Name: view_ksiazki; Type: VIEW; Schema: biblioteka; Owner: postgres
+--
+
+CREATE VIEW biblioteka.view_ksiazki AS
+ SELECT "Ksiazki".tytul,
+    "Ksiazki".opis,
+    "Ksiazki".rok_wydania
+   FROM biblioteka."Ksiazki";
+
+
+ALTER TABLE biblioteka.view_ksiazki OWNER TO postgres;
+
+--
+-- TOC entry 3048 (class 0 OID 525056)
+-- Dependencies: 202
+-- Data for Name: Autorzy; Type: TABLE DATA; Schema: biblioteka; Owner: postgres
+--
+
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (1, 'Tobiah', 'Valaria', 'Houldey');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (2, 'Jewel', 'Lorrin', 'Doutch');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (3, 'Selby', 'Vicky', 'Crosston');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (4, 'Janos', 'Hunt', 'Tregidgo');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (5, 'Jessie', 'Zonda', 'Ossenna');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (6, 'Regina', 'Lazarus', 'Philimore');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (7, 'Lorettalorna', 'Crista', 'Mousby');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (8, 'Blinni', 'Etty', 'Lambotin');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (9, 'Xylia', 'Mariellen', 'Motten');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (10, 'Irv', 'Gates', 'Mugglestone');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (11, 'Augy', 'Ian', 'Rubbens');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (12, 'Durand', 'Aurthur', 'Fanshaw');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (13, 'Mayor', 'Jack', 'Farnsworth');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (14, 'Johannes', 'Janos', 'Kellington');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (15, 'Pierre', 'Artemus', 'Godthaab');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (16, 'Carolee', 'Edi', 'Olivella');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (17, 'Gabi', 'Merle', 'Steckings');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (18, 'Alfreda', 'Rhea', 'Justham');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (19, 'Marillin', 'Benjy', 'McQuaid');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (20, 'Neda', 'Sergeant', 'Caldairou');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (21, 'Niel', 'Nessi', 'Isakovitch');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (22, 'Kori', 'Octavius', 'Civitillo');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (23, 'Rikki', 'Lon', 'Dalmon');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (24, 'Kristopher', 'Carlotta', 'Yorke');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (25, 'Stevy', 'Romola', 'Kmiec');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (26, 'Mort', 'Gerick', 'Waddington');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (27, 'Wat', 'Nikki', 'Waudby');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (28, 'Thorny', 'Arnoldo', 'Ginn');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (29, 'Rowan', 'Adiana', 'Ferne');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (30, 'Cathee', 'Abigael', 'Douglas');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (31, 'Karylin', 'Tracie', 'Jenteau');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (32, 'Ambros', 'Ester', 'Micah');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (33, 'Celia', 'Gleda', 'Juett');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (34, 'Cissiee', 'Calley', 'Megarrell');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (35, 'Karol', 'Ezechiel', 'Priestman');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (36, 'Brade', 'Cairistiona', 'Cullotey');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (37, 'Carny', 'Cami', 'Tatlock');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (38, 'Ottilie', 'Yulma', 'Biasini');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (39, 'Eula', 'Lock', 'Betancourt');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (40, 'Berry', 'Abran', 'Enbury');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (41, 'Flint', 'Anneliese', 'Gilhoolie');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (42, 'Jorgan', 'Theodoric', 'Baversor');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (43, 'Gunilla', 'Towney', 'Ellingford');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (44, 'Renie', 'Katine', 'Gulvin');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (45, 'L;urette', 'Breanne', 'Novak');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (46, 'Edita', 'Pebrook', 'Earlam');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (47, 'Katharina', 'Brant', 'Goeff');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (48, 'Amberly', 'Fredrick', 'Carmen');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (49, 'Juliette', 'Ludovico', 'Cardoo');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (50, 'Barrett', 'Georgetta', 'Desforges');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (51, 'Evangelia', 'Galen', 'Sturgis');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (52, 'Kimmy', 'Cirstoforo', 'Crudgington');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (53, 'Niel', 'Kory', 'Samber');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (54, 'Wolfgang', 'Amberly', 'Goves');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (55, 'Nathalia', 'Kenna', 'Tournie');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (56, 'Mordecai', 'Allayne', 'Stegell');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (57, 'Robby', 'Germayne', 'Hinckes');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (58, 'Joby', 'Yvon', 'Mealing');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (59, 'Raynor', 'Alverta', 'Wingar');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (60, 'Griff', 'Lucienne', 'Addie');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (61, 'Kirsten', 'Peta', 'MacAleese');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (62, 'Eden', 'Elfie', 'Stickells');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (63, 'Giacomo', 'Angelico', 'Windmill');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (64, 'Bryon', 'Leodora', 'Goodwyn');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (65, 'Heywood', 'Rafferty', 'Peacop');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (66, 'Kristien', 'Anatola', 'Few');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (67, 'Trude', 'Thane', 'Syce');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (68, 'Rogers', 'Harcourt', 'Fouch');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (69, 'Cirillo', 'Gianni', 'Gymblett');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (70, 'Bondon', 'Riannon', 'Lycett');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (71, 'Sax', 'Karmen', 'Vaen');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (72, 'Darby', 'Melosa', 'Wedderburn');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (73, 'Bradly', 'Bertina', 'Sallis');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (74, 'Gratiana', 'Alexis', 'Lead');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (75, 'Yanaton', 'Erhard', 'Dunford');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (76, 'Poppy', 'Janifer', 'Blethyn');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (77, 'Bernice', 'Gregg', 'Bergin');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (78, 'Pierce', 'Erinn', 'Ragsdale');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (79, 'Nikaniki', 'Cayla', 'Benkin');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (80, 'Jim', 'Toby', 'Fretter');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (81, 'Elston', 'Gene', 'Hanbury');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (82, 'Buddie', 'Welbie', 'Readwin');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (83, 'Ring', 'Carrie', 'Mercey');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (84, 'Ricardo', 'Khalil', 'Crippen');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (85, 'Rosaline', 'Alanah', 'Sokale');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (86, 'Kim', 'Neda', 'Cassar');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (87, 'Glenn', 'Quill', 'Goane');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (88, 'Raeann', 'Ingmar', 'Iacovolo');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (89, 'Gratia', 'Lisetta', 'MacKibbon');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (90, 'Artus', 'Aurea', 'Guyton');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (91, 'Chelsie', 'Bealle', 'Smorthwaite');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (92, 'Salim', 'Burlie', 'Lillico');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (93, 'Maryrose', 'Bendick', 'Sandison');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (94, 'Towny', 'Ker', 'Bader');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (95, 'Bernelle', 'Anatole', 'Hyrons');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (96, 'Keary', 'Patience', 'Folland');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (97, 'Wash', 'Victoria', 'Kristoffersen');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (98, 'Janos', 'Robinet', 'Domenc');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (99, 'Nydia', 'Lalo', 'Maden');
+INSERT INTO biblioteka."Autorzy" (id_autora, imie, drugie_imie, nazwisko) VALUES (100, 'Alexa', 'Charita', 'Croan');
+
+
+--
+-- TOC entry 3047 (class 0 OID 525051)
+-- Dependencies: 201
+-- Data for Name: Kategorie; Type: TABLE DATA; Schema: biblioteka; Owner: postgres
+--
+
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (1, 'Akcja');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (2, 'Biograficzne');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (3, 'Dla dzieci');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (4, 'Fantastyka');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (5, 'Historyczna');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (6, 'Horror');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (7, 'Języki obce');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (8, 'Klasyka');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (9, 'Komiks');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (10, 'Kryminał');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (11, 'Książka kucharska');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (12, 'Literatura faktu');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (13, 'Literatura naukowa/popularnonaukowa');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (14, 'Literatura piękna');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (15, 'Literatura podróżnicza');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (16, 'Literatura współczesna');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (17, 'Magia i parapsychologia');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (18, 'Mangi');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (19, 'Młodzieżowa');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (20, 'Obyczajowa');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (21, 'Opowiadania');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (22, 'Paranormal romance');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (23, 'Poezja');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (24, 'Poradnik');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (25, 'Postapokalipsa/Dystopia/Antyutopia');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (26, 'Psychologiczna');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (27, 'Religijna');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (28, 'Romans');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (29, 'Romans historyczny');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (30, 'Science-fiction');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (31, 'Sensacja');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (32, 'Steampunk');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (33, 'Thriller');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (34, 'Young Adult/New Adult');
+INSERT INTO biblioteka."Kategorie" (id_kategorie, nazwa) VALUES (35, 'Ciężko sklasyfikować');
+
+
+--
+-- TOC entry 3050 (class 0 OID 525069)
+-- Dependencies: 204
+-- Data for Name: Ksiazki; Type: TABLE DATA; Schema: biblioteka; Owner: postgres
+--
+
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (1, 7, 'Karlsson Brothers (Bröderna Karlsson)', 'Abandonment/lack of care', 1, 31, '1967-04-09');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (2, 32, 'Misérables, Les', 'Autosomal deletions NEC', 2, 2, '1946-11-07');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (3, 33, 'Super, The', 'Phobia NOS', 3, 18, '1980-04-01');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (4, 2, 'Dames', 'Acq absence urinary trct', 4, 21, '1959-06-04');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (5, 1, 'Street Fighter II: The Animated Movie (Sutorîto Faitâ II gekijô-ban)', 'Subarach hem-prolng coma', 5, 36, '1989-11-26');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (6, 30, 'Hi-Lo Country, The', 'Depress psychosis-unspec', 6, 76, '2000-08-23');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (7, 26, 'Cheerleader Massacre', 'Bipol I cur depres NOS', 7, 85, '2009-12-06');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (8, 30, 'Way, The', 'Compl deliv NOS-antepar', 8, 35, '1933-05-19');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (9, 29, 'If You Love (Jos rakastat)', 'Suprv young multigravida', 9, 74, '2015-01-14');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (10, 24, 'California', 'Bacterial enteritis NOS', 10, 7, '1950-10-04');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (11, 14, 'Saw', 'Preg state, incidental', 11, 57, '1975-03-18');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (12, 19, 'Pray the Devil Back to Hell', 'Ventricular fibrillation', 12, 86, '1926-05-30');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (13, 35, 'Breathless', 'Social conduct dis-sev', 13, 70, '1981-09-28');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (14, 21, 'Front Page Woman', 'Hodg nodul sclero abdom', 14, 62, '2009-05-05');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (15, 35, 'Beyond Borders', 'Speech/language dis NEC', 15, 87, '1948-05-25');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (16, 22, 'The Cheat', 'Comp edentulism,class I', 16, 57, '1995-04-27');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (17, 14, 'Gift, The', 'Cns demyelination NEC', 17, 4, '1993-02-01');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (18, 31, 'Pyaar Ka Punchnama', 'Sleep arousal disorder', 18, 69, '1939-10-28');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (19, 22, 'Before Flying Back to Earth (Pries parskrendant i zeme)', 'Cent retinal vein occlus', 19, 7, '1948-03-06');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (20, 19, 'A Smoky Mountain Christmas', '3rd deg burn w loss-back', 20, 2, '2005-04-08');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (21, 5, 'Red and the White, The (Csillagosok, katonák)', 'Dev dislocat joint-hand', 21, 88, '1947-03-03');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (22, 1, 'Locusts, The', 'W/crft-military NEC/NOS', 22, 3, '2014-02-21');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (23, 18, 'Yellow Submarine', 'Scrn risk preterm labor', 23, 87, '1954-02-28');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (24, 1, 'King Solomon''s Mines', 'Mal neo lymph node NOS', 24, 49, '2005-04-24');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (25, 17, 'Point Blank (À bout portant)', 'Chronic hypomanic person', 25, 86, '1976-06-16');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (26, 16, 'Richie Rich', 'Uterine tumor-delivered', 26, 1, '1994-07-09');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (27, 4, 'Punk Syndrome, The (Kovasikajuttu)', 'Anal sphinctr tear w p/p', 27, 84, '1943-07-22');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (28, 9, 'Pathetic Fallacy (Ajantrik)', 'Vaccin for leishmaniasis', 28, 35, '1968-02-28');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (29, 31, 'Browning Version, The', 'Omphalocele', 29, 84, '1924-01-25');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (30, 10, 'Psychopath, The', 'Flu dt avian manfest NEC', 30, 7, '1988-05-29');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (31, 8, 'Skhizein', 'Injury hypoglossal nerve', 31, 83, '1975-11-04');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (32, 7, 'Candyman: Farewell to the Flesh', 'Delay p/p hem-del w p/p', 32, 26, '1966-10-22');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (33, 35, 'Freebie and the Bean', 'Hx malig neuroendo tumor', 33, 64, '1982-05-01');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (34, 16, 'Rififi (Du rififi chez les hommes)', 'Gastrostomy status', 34, 35, '2008-04-30');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (35, 28, 'Prisoners of the Lost Universe', 'Contracept surveill NOS', 35, 79, '1971-10-05');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (36, 26, 'Dead Fish', 'Pregnt-assist repro tech', 36, 23, '2015-09-03');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (37, 7, 'Gnomeo & Juliet', 'Ac osteomyelitis-shlder', 37, 86, '2013-03-19');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (38, 13, 'Bat*21', 'Sprain of back NOS', 38, 26, '2010-10-07');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (39, 24, 'Last of Sheila, The', 'Osteomyelit NOS-oth site', 39, 19, '2013-04-08');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (40, 1, 'Enemy Below, The', 'Tox eff lacrimogenic gas', 40, 44, '1948-11-04');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (41, 4, 'Asfalto', 'RR coll NOS-ped cyclist', 41, 29, '1967-02-06');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (42, 4, 'Chato''s Land', 'Syst lupus erythematosus', 42, 54, '1958-03-26');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (43, 20, 'Red State', 'Bancroftian filariasis', 43, 25, '1938-07-04');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (44, 8, 'Devil''s Advocate, The', 'Trampoline', 44, 7, '1961-09-10');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (45, 3, 'Serpent''s Egg, The (Schlangenei, Das)', 'Abort NOS w hemorr-comp', 45, 64, '2005-11-13');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (46, 24, 'Final Darkness, The (Buio Omega)', 'TB lung infiltr-cult dx', 46, 13, '1958-09-07');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (47, 14, 'Carts of Darkness', 'Dissem chorioretinit NOS', 47, 41, '1976-09-13');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (48, 17, 'Flowers of War, The (Jin líng shí san chai)', 'Amebiasis NOS', 48, 25, '1921-11-17');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (49, 9, 'Cool School, The', 'Lower leg injury NOS', 49, 59, '1924-02-12');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (50, 2, 'They Gave Him A Gun', 'Joint dis NEC-oth jt', 50, 51, '1933-11-03');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (51, 19, 'Waiting For Armageddon', 'Crit illness neuropathy', 51, 84, '1964-09-25');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (52, 12, 'Val Lewton:  The Man in the Shadows', 'Eye movemnt disorder NOS', 52, 76, '1994-05-13');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (53, 34, 'Crimetime', 'Palpitations', 53, 73, '1921-12-02');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (54, 31, 'Christmas Carol, A', 'Other general symptoms', 54, 59, '2007-12-28');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (55, 30, 'Penthouse North', 'Toxic effect freon', 55, 53, '1944-06-29');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (56, 12, 'Bullfighters, The', 'Memory loss', 56, 19, '1955-09-07');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (57, 9, 'Dream With the Fishes', 'Psychogenic pain NOS', 57, 73, '1928-09-20');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (58, 30, 'The Moromete Family', 'Acute inflam NOS, orbit', 58, 81, '1991-01-11');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (59, 8, 'Cheap Thrills', 'RR acc w derail-pers NOS', 59, 44, '1967-05-10');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (60, 8, 'Proof', 'Boat submers-pers NEC', 60, 49, '1935-12-22');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (61, 8, 'All of Me', 'Jt stiffness NEC-hand', 61, 1, '2014-03-21');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (62, 17, 'Hype!', 'Puerp compl NOS-unspec', 62, 81, '1996-07-01');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (63, 11, 'Short Film About John Bolton, A', 'Perinat jaund-hered anem', 63, 44, '1990-02-15');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (64, 24, 'Legend of Sleepy Hollow, The', 'Retract nipple-postpart', 64, 45, '1923-07-08');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (65, 17, 'Prom Night', 'BMI between 19-24,adult', 65, 42, '2018-12-05');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (66, 1, 'Death Watch (La Mort en Direct)', 'Dermatophytosis site NEC', 66, 52, '1983-10-12');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (67, 13, 'Cialo', 'Stat ob w/o sub fall NEC', 67, 39, '1972-08-21');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (68, 30, '17 Girls (17 filles)', 'Illeg ab w ren fail-inc', 68, 47, '1930-11-20');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (69, 3, 'Higher Ground', 'T1-t6 fx-op/ant cord syn', 69, 83, '1951-01-16');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (70, 18, 'Peppermint Soda (Diabolo menthe)', 'Compl labor NOS-antepart', 70, 84, '1995-09-11');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (71, 23, 'Blood on the Moon', 'Baseball', 71, 60, '1971-01-02');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (72, 12, 'Bullfighter and the Lady', 'Malignant neo larynx NEC', 72, 14, '1941-07-26');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (73, 28, 'Brotherhood of the Wolf (Pacte des loups, Le)', 'Amyotrophic sclerosis', 73, 41, '1962-11-16');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (74, 5, 'Last Movie, The', 'Malocc-Angle''s class II', 74, 45, '1948-01-09');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (75, 1, 'Bound by Honor (a.k.a. Blood In, Blood Out)', 'Saccadic eye movmnt def', 75, 78, '1935-08-11');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (76, 9, 'Polar Express, The', 'Acc poison-gas/vapor NOS', 76, 61, '1920-11-12');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (77, 30, 'Who Killed Bambi? (Qui a tué Bambi?)', 'Fail introd/remove tube', 77, 67, '1959-04-22');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (78, 19, 'Katzelmacher', 'Op skl base fx-deep coma', 78, 76, '1933-05-26');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (79, 25, 'Jet Pilot', 'Breast inf preg NOS-unsp', 79, 8, '1989-04-16');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (80, 9, 'First Comes Love', 'Atten to ileostomy', 80, 27, '2014-11-11');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (81, 7, 'Evil Dead, The', 'Galactorrhea preg-unspec', 81, 74, '1978-11-04');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (82, 9, 'Ruby', 'Monoarthrit NOS-forearm', 82, 82, '1996-08-30');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (83, 11, 'Yesterday', 'Monoarthrit NOS-oth site', 83, 87, '1921-07-11');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (84, 33, 'Outer Space', 'Other hyperalimentation', 84, 86, '1991-06-29');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (85, 12, 'Stalingrad', 'Backgrnd retinopathy NOS', 85, 42, '2001-12-01');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (86, 19, 'The Best of Me', 'Endodontic underfill', 86, 44, '1982-12-18');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (87, 22, 'Reach the Rock', '60-69% bdy brn/30-39% 3d', 87, 22, '1983-10-16');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (88, 21, 'Command Performance', 'Spondylosis NOS w myelop', 88, 23, '2020-02-06');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (89, 21, 'Tarzan', 'Oth leuk w/o achv rmsn', 89, 78, '1972-06-24');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (90, 17, 'Rollover', 'Myelodysplastic synd NOS', 90, 84, '1938-02-25');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (91, 15, 'Toast', 'TB of spleen-no exam', 91, 42, '2019-11-03');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (92, 7, 'Mystic Pizza', 'Adv eff plague vaccine', 92, 13, '1970-04-08');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (93, 7, 'Cloud-Capped Star, The (Meghe Dhaka Tara)', 'Trigeminal neuralgia', 93, 63, '1985-12-12');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (94, 4, 'Analyze That', 'N-traf brd/alit-ped cycl', 94, 79, '1948-02-15');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (95, 2, 'Chang: A Drama of the Wilderness', 'Grand multiparity', 95, 16, '1972-01-22');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (96, 30, 'Freezer', 'Subarachnoid hemorrhage', 96, 36, '1974-05-14');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (97, 10, 'Wake in Providence, A', 'Hyperosmolality', 97, 57, '2004-03-21');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (98, 22, 'The Trip to Squash Land', 'Fx c3 vertebra-open', 98, 46, '1960-07-09');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (99, 10, 'Decline of the American Empire, The (Déclin de l''empire américain, Le)', 'Capsular cataract', 99, 84, '1990-05-08');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (100, 17, 'Kill for Me', 'Injury to facial nerve', 100, 32, '1976-03-22');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (101, 17, 'Kill', 'Brak opisu', 100, 32, '1976-03-22');
+INSERT INTO biblioteka."Ksiazki" (id_ksiazki, id_kategorie, tytul, opis, id_autora, id_wydawnictwa, rok_wydania) VALUES (102, 12, ' Me', 'Brak opisu', 100, 32, '1976-03-22');
+
+
+--
+-- TOC entry 3053 (class 0 OID 525090)
+-- Dependencies: 207
+-- Data for Name: Pracownicy; Type: TABLE DATA; Schema: biblioteka; Owner: postgres
+--
+
+INSERT INTO biblioteka."Pracownicy" (id_pracownika, id_stanowiska, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (1, 3, 'Jeniffer', 'Iggy', 'Corris', 'icorris0', 'KbIpzFFCFBX', 'icorris0@cloudflare.com', '6956584122', '1988-09-03');
+INSERT INTO biblioteka."Pracownicy" (id_pracownika, id_stanowiska, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (2, 1, 'Arron', 'Chen', 'Lurner', 'clurner1', 'ELYkxLFoM', 'clurner1@de.vu', '9711958255', '1974-12-27');
+INSERT INTO biblioteka."Pracownicy" (id_pracownika, id_stanowiska, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (3, 3, 'Urbanus', 'Trixi', 'Maciocia', 'tmaciocia2', 't9BJivzP', 'tmaciocia2@creativecommons.org', '5208262944', '1967-07-07');
+INSERT INTO biblioteka."Pracownicy" (id_pracownika, id_stanowiska, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (4, 3, 'Halley', 'Oswald', 'Gallear', 'ogallear3', 'QaN5rKC0TPM', 'ogallear3@marketwatch.com', '6055439151', '1974-01-25');
+INSERT INTO biblioteka."Pracownicy" (id_pracownika, id_stanowiska, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (5, 1, 'Skipton', 'Kermit', 'Grimsditch', 'kgrimsditch4', 'Aj5kvWo8wW', 'kgrimsditch4@lulu.com', '4142815556', '1992-04-09');
+INSERT INTO biblioteka."Pracownicy" (id_pracownika, id_stanowiska, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (6, 3, 'Valli', 'Huberto', 'Chese', 'hchese5', 'HDrLm6CRnMii', 'hchese5@ameblo.jp', '2026534664', '1965-04-29');
+INSERT INTO biblioteka."Pracownicy" (id_pracownika, id_stanowiska, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (7, 2, 'Rudolfo', 'Orel', 'Swadling', 'oswadling6', 'gUlKFZaYeY', 'oswadling6@wsj.com', '2053985259', '1984-11-03');
+INSERT INTO biblioteka."Pracownicy" (id_pracownika, id_stanowiska, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (8, 2, 'Eberto', 'Bondie', 'Stonehewer', 'bstonehewer7', 'jp3tOUGg66M4', 'bstonehewer7@clickbank.net', '3073819788', '1963-01-30');
+INSERT INTO biblioteka."Pracownicy" (id_pracownika, id_stanowiska, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (9, 3, 'Keen', 'Salim', 'Prestie', 'sprestie8', 'zKOf2Lg', 'sprestie8@pagesperso-orange.fr', '1845102818', '1972-06-27');
+INSERT INTO biblioteka."Pracownicy" (id_pracownika, id_stanowiska, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (10, 3, 'Noemi', 'Brier', 'Olivey', 'bolivey9', 'nbTx4Zu', 'bolivey9@qq.com', '5629418336', '1975-10-08');
+INSERT INTO biblioteka."Pracownicy" (id_pracownika, id_stanowiska, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (11, 2, 'Zelig', 'Mariejeanne', 'Hambidge', 'mhambidgea', '8mMMbDs5qcOK', 'mhambidgea@google.com.br', '1903813302', '1960-08-27');
+INSERT INTO biblioteka."Pracownicy" (id_pracownika, id_stanowiska, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (12, 3, 'Helaina', 'Alain', 'Alphege', 'aalphegeb', 'eocSRUa', 'aalphegeb@google.pl', '3066957101', '1992-11-01');
+INSERT INTO biblioteka."Pracownicy" (id_pracownika, id_stanowiska, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (13, 3, 'Brittaney', 'Genovera', 'Chillcot', 'gchillcotc', 'PjUMpiky', 'gchillcotc@lycos.com', '8245290154', '1991-11-23');
+INSERT INTO biblioteka."Pracownicy" (id_pracownika, id_stanowiska, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (14, 1, 'Rica', 'Hunter', 'Flook', 'hflookd', 't6tnqOxg', 'hflookd@youtu.be', '8177565867', '1994-02-27');
+INSERT INTO biblioteka."Pracownicy" (id_pracownika, id_stanowiska, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (15, 2, 'Marjy', 'Mureil', 'Kermode', 'mkermodee', 'F2BA4OSnOxYc', 'mkermodee@sourceforge.net', '1294806263', '1962-10-18');
+INSERT INTO biblioteka."Pracownicy" (id_pracownika, id_stanowiska, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (16, 2, 'Angel', 'Curr', 'MacDonell', 'cmacdonellf', 'uU7EPGaElV', 'cmacdonellf@cpanel.net', '4081206511', '1974-06-19');
+INSERT INTO biblioteka."Pracownicy" (id_pracownika, id_stanowiska, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (17, 3, 'Christian', 'Eolande', 'Beange', 'ebeangeg', 'nj4T4YQ63b', 'ebeangeg@de.vu', '2107548554', '1992-06-15');
+INSERT INTO biblioteka."Pracownicy" (id_pracownika, id_stanowiska, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (18, 3, 'Veronique', 'Jermaine', 'Savell', 'jsavellh', 'FIRRrDADc', 'jsavellh@newyorker.com', '3006039006', '1983-02-10');
+INSERT INTO biblioteka."Pracownicy" (id_pracownika, id_stanowiska, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (19, 3, 'Tobiah', 'Aldric', 'Keetley', 'akeetleyi', 'stVhEke', 'akeetleyi@cargocollective.com', '4866244556', '1977-03-14');
+INSERT INTO biblioteka."Pracownicy" (id_pracownika, id_stanowiska, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (20, 1, 'Donavon', 'Genevra', 'Bletsoe', 'gbletsoej', 'ZY91RbTORql', 'gbletsoej@nytimes.com', '7255528268', '1988-10-21');
+
+
+--
+-- TOC entry 3052 (class 0 OID 525085)
+-- Dependencies: 206
+-- Data for Name: Stanowisko; Type: TABLE DATA; Schema: biblioteka; Owner: postgres
+--
+
+INSERT INTO biblioteka."Stanowisko" (id_stanowiska, nazwa) VALUES (1, 'IT');
+INSERT INTO biblioteka."Stanowisko" (id_stanowiska, nazwa) VALUES (2, 'Liblarian');
+INSERT INTO biblioteka."Stanowisko" (id_stanowiska, nazwa) VALUES (3, 'Cleaner');
+
+
+--
+-- TOC entry 3051 (class 0 OID 525077)
+-- Dependencies: 205
+-- Data for Name: Uzytkownicy; Type: TABLE DATA; Schema: biblioteka; Owner: postgres
+--
+
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (1, 'Pall', 'Kanya', 'Moresby', 'kmoresby0', '8dTmOw', 'kmoresby0@technorati.com', '4555340567', '1958-12-23');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (2, 'Gabe', 'Clevie', 'Spurdens', 'cspurdens1', 'Igx1sLJH1T', 'cspurdens1@cocolog-nifty.com', '4206464130', '1998-03-13');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (3, 'Carolee', 'Francyne', 'Horche', 'fhorche2', '1YckW7apNXQ', 'fhorche2@liveinternet.ru', '7591041468', '1999-05-02');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (4, 'Gino', 'Nell', 'Gilley', 'ngilley3', 'xOmrE9KMn5', 'ngilley3@wikimedia.org', '2299941398', '1988-01-09');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (5, 'Moses', 'Shena', 'Imlach', 'simlach4', 'nxjriZ4KOTJi', 'simlach4@deliciousdays.com', '8991097823', '1972-10-25');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (6, 'Maude', 'Margret', 'Plowell', 'mplowell5', 'HSZLsJBg', 'mplowell5@marketwatch.com', '7979417612', '1999-10-31');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (7, 'Penelope', 'Mollee', 'Cosins', 'mcosins6', '3DNiGKfrV', 'mcosins6@smugmug.com', '9387880695', '1999-09-06');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (8, 'Sammie', 'Dermot', 'Duffil', 'dduffil7', 'FaE7jxhhnBAa', 'dduffil7@msn.com', '2197829314', '2000-12-08');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (9, 'Seumas', 'Otis', 'McGiff', 'omcgiff8', 'Nw9i7wF4Y', 'omcgiff8@bizjournals.com', '6412146851', '1972-12-17');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (10, 'Jeannette', 'Kelwin', 'Waller-Bridge', 'kwallerbridge9', 'OekZaIkHx', 'kwallerbridge9@typepad.com', '9337136234', '1962-05-06');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (11, 'Chauncey', 'Suki', 'Ruffey', 'sruffeya', 'mFUlLHJs', 'sruffeya@yandex.ru', '3215895661', '1955-06-06');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (12, 'Archibald', 'Bernadene', 'Chandlar', 'bchandlarb', '0M47EeglqGa', 'bchandlarb@blogspot.com', '4822989979', '1990-07-03');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (13, 'Jareb', 'Packston', 'Ubsdell', 'pubsdellc', 'wpXNJP', 'pubsdellc@go.com', '4907718022', '1984-11-16');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (14, 'Rachel', 'Chandler', 'Tomblings', 'ctomblingsd', '8VjCoLfgj', 'ctomblingsd@google.ca', '9055351026', '1955-08-22');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (15, 'Ricoriki', 'Silva', 'Lewtey', 'slewteye', 'aJvDSvUEFQsE', 'slewteye@youtu.be', '1871350956', '1955-06-02');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (16, 'Frayda', 'Olive', 'Vause', 'ovausef', 'BS24mVsb', 'ovausef@reddit.com', '1182420896', '1984-12-31');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (17, 'Scottie', 'Thurstan', 'Dell Casa', 'tdellcasag', '9HVdyQ', 'tdellcasag@tripod.com', '2909594152', '1969-11-30');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (18, 'Julissa', 'Sammie', 'Aitken', 'saitkenh', 'Q6RJDG3b', 'saitkenh@usa.gov', '9463281900', '2007-12-24');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (19, 'Arliene', 'Kinnie', 'Biaggi', 'kbiaggii', 'Bjeaub5FTF', 'kbiaggii@altervista.org', '1736522828', '2002-02-22');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (20, 'Ernest', 'Welsh', 'Tomkinson', 'wtomkinsonj', 'YR4UpCdY', 'wtomkinsonj@360.cn', '1729898007', '1982-02-14');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (21, 'Meryl', 'Tatiana', 'Reavey', 'treaveyk', 'Xwkj7th', 'treaveyk@printfriendly.com', '3734856002', '2002-11-01');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (22, 'Filberto', 'Emylee', 'Decourt', 'edecourtl', 'WarRQ4WryQ5J', 'edecourtl@a8.net', '9763914413', '1968-07-02');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (23, 'Giana', 'Micheal', 'Seago', 'mseagom', 'imVASY3', 'mseagom@miitbeian.gov.cn', '4216169852', '1996-02-11');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (24, 'Edeline', 'Stefan', 'Habergham', 'shaberghamn', 'WHSmn9C', 'shaberghamn@issuu.com', '6046985408', '1994-12-19');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (25, 'Jennifer', 'Dannie', 'Wrefford', 'dwreffordo', 't5z5dpE', 'dwreffordo@google.co.uk', '3994218241', '2005-10-18');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (26, 'Kirbie', 'Collin', 'Doucette', 'cdoucettep', 'wdiGWPAb', 'cdoucettep@latimes.com', '8318882852', '1966-05-17');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (27, 'Raychel', 'Colet', 'Arrington', 'carringtonq', 'zaK5nNh0', 'carringtonq@friendfeed.com', '9077237409', '1954-01-11');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (28, 'Putnam', 'Zahara', 'Stoakley', 'zstoakleyr', 'Vpna9oYW1', 'zstoakleyr@prlog.org', '1438465229', '1952-02-23');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (29, 'L;urette', 'Alfreda', 'Favill', 'afavills', 'gzjOQLWcH04', 'afavills@1688.com', '2292122015', '1959-03-15');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (30, 'Charlot', 'Dave', 'Leacock', 'dleacockt', 'cftGcC', 'dleacockt@youtu.be', '4438279475', '1983-03-10');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (31, 'Gabe', 'Erminie', 'Leal', 'elealu', 'qOH9YrofgINx', 'elealu@phoca.cz', '6196930291', '2009-07-17');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (32, 'Dacia', 'Belvia', 'Grazier', 'bgrazierv', 'S1OmgLDk6a', 'bgrazierv@cpanel.net', '3207033264', '1952-08-11');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (33, 'Chancey', 'Lizbeth', 'Tomkowicz', 'ltomkowiczw', 'ioUB14mVLff', 'ltomkowiczw@addthis.com', '9214303301', '1981-12-23');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (34, 'Cecilio', 'Breena', 'Cutsforth', 'bcutsforthx', 'orv6dtV70U', 'bcutsforthx@comcast.net', '2195003391', '1966-07-11');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (35, 'Krisha', 'Maudie', 'Sharland', 'msharlandy', 'PfztfK56S', 'msharlandy@ca.gov', '7517327285', '1999-06-28');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (36, 'Iggy', 'Darb', 'Stride', 'dstridez', 'vcQZLryJC', 'dstridez@weather.com', '1571083405', '2006-11-06');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (37, 'Nessa', 'Pepi', 'Sully', 'psully10', 'TwCSfKA', 'psully10@wordpress.com', '9075797070', '1963-08-01');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (38, 'Pris', 'Gavin', 'Linnane', 'glinnane11', 'l0JrXMZLg', 'glinnane11@toplist.cz', '4303344285', '1973-11-22');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (39, 'Nicole', 'Lesya', 'Osgardby', 'losgardby12', 'ibvzdrg0', 'losgardby12@spotify.com', '1057807668', '1961-03-16');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (40, 'Tucky', 'Georgeanne', 'Donizeau', 'gdonizeau13', 'D5X3T8vgfA', 'gdonizeau13@posterous.com', '7686259359', '2005-05-19');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (41, 'Minni', 'Celestyn', 'Hurn', 'churn14', 'pYVbr82nl6CO', 'churn14@army.mil', '8833261609', '1985-04-03');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (42, 'Ogdan', 'Darcy', 'Mottinelli', 'dmottinelli15', 'WqIgAotrHyK', 'dmottinelli15@mac.com', '9417452037', '1993-12-10');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (43, 'Holly', 'Brade', 'Preskett', 'bpreskett16', 'JpEtnLxCWl', 'bpreskett16@t-online.de', '7085352130', '1964-12-16');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (44, 'Alasteir', 'Amory', 'Seeman', 'aseeman17', 'drkenbKE', 'aseeman17@tamu.edu', '1505464338', '2010-06-01');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (45, 'Bord', 'Alfreda', 'Jefferys', 'ajefferys18', 'jwFJPKm', 'ajefferys18@usda.gov', '9333717605', '1988-01-18');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (46, 'Mack', 'Burk', 'Silverman', 'bsilverman19', '7yWRsj', 'bsilverman19@wsj.com', '4717053095', '1977-11-08');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (47, 'Atalanta', 'Gary', 'Illyes', 'gillyes1a', 'wE6ShovF', 'gillyes1a@shinystat.com', '7267115996', '1982-09-17');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (48, 'Nomi', 'Joanne', 'Scaplehorn', 'jscaplehorn1b', 'CJ1dPu51I5', 'jscaplehorn1b@freewebs.com', '7028829750', '1957-06-17');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (49, 'Al', 'Molly', 'Tumilson', 'mtumilson1c', 'ugdgMt', 'mtumilson1c@livejournal.com', '7517250008', '1975-05-19');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (50, 'Alikee', 'Ilene', 'Wellen', 'iwellen1d', 'sX2qlKe65l', 'iwellen1d@webs.com', '3103631305', '1980-05-22');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (51, 'Vivia', 'Flory', 'Ailward', 'failward1e', 'uzrNoW', 'failward1e@aol.com', '8829246283', '1973-01-11');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (52, 'Dukey', 'Angeline', 'Wingfield', 'awingfield1f', 'HQJooJ', 'awingfield1f@sourceforge.net', '4713267193', '1956-05-28');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (53, 'Susi', 'Tresa', 'McNeill', 'tmcneill1g', 'bLDIl7wKP', 'tmcneill1g@sun.com', '3966515199', '2008-12-30');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (54, 'Vasili', 'Aharon', 'Aiton', 'aaiton1h', 'Gr2ZVrY', 'aaiton1h@skyrock.com', '1195449168', '1997-12-07');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (55, 'Matty', 'Hendrick', 'Rosenberg', 'hrosenberg1i', 'tKnYqXDMKax', 'hrosenberg1i@sfgate.com', '1114598134', '1998-05-07');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (56, 'Dorthy', 'Averyl', 'Pellant', 'apellant1j', 'cJMIfb', 'apellant1j@rediff.com', '8626678242', '1970-11-09');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (57, 'Griffie', 'Rab', 'Millar', 'rmillar1k', 'ZKk0X8', 'rmillar1k@unc.edu', '1513301609', '1956-05-20');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (58, 'Carolee', 'Ennis', 'Engall', 'eengall1l', 'IUvYYq2snQ', 'eengall1l@soup.io', '5786682983', '1957-05-01');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (59, 'Perkin', 'Dwain', 'Blunn', 'dblunn1m', 'mDNoGnm', 'dblunn1m@uiuc.edu', '5458802294', '1965-04-06');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (60, 'Halley', 'Horacio', 'Sidey', 'hsidey1n', 'h2eFNB', 'hsidey1n@tumblr.com', '5109558789', '1966-10-27');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (61, 'Gwynne', 'Herve', 'Ashton', 'hashton1o', 'Sn6Jeh4T', 'hashton1o@imgur.com', '9246746851', '2010-04-20');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (62, 'Prentiss', 'Adaline', 'Thirst', 'athirst1p', 'y7lHf4Msy2Su', 'athirst1p@webnode.com', '9183634651', '2010-01-03');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (63, 'Collie', 'Agneta', 'Cruwys', 'acruwys1q', 'Jb4muUQp4', 'acruwys1q@cisco.com', '7215743652', '1987-06-14');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (64, 'Bruis', 'Malena', 'Trytsman', 'mtrytsman1r', 'UE2rL2YImw', 'mtrytsman1r@ycombinator.com', '6453828789', '1962-11-05');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (65, 'Jeniece', 'Petronia', 'Massingham', 'pmassingham1s', 'tQFMeaaw', 'pmassingham1s@timesonline.co.uk', '6926975478', '1966-07-09');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (66, 'Thom', 'Chalmers', 'Kett', 'ckett1t', 'YQcTGUwM', 'ckett1t@harvard.edu', '8384551409', '1953-05-22');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (67, 'Rourke', 'Juliet', 'Griffoen', 'jgriffoen1u', 'dgk7oNwntV', 'jgriffoen1u@people.com.cn', '4085792093', '1988-02-22');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (68, 'Jannel', 'Julissa', 'Gormley', 'jgormley1v', 'I9Oa5dm', 'jgormley1v@thetimes.co.uk', '9152725917', '2005-10-14');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (69, 'Nicolea', 'Davida', 'Rodnight', 'drodnight1w', 'GnVJeC90Cm', 'drodnight1w@marketwatch.com', '9712393760', '2000-12-06');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (70, 'Jordain', 'Prent', 'Maycock', 'pmaycock1x', 'P6H6mDW', 'pmaycock1x@yale.edu', '3807637525', '1999-10-03');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (71, 'Cora', 'Marji', 'Skews', 'mskews1y', 'PS9RIU', 'mskews1y@fastcompany.com', '8187356992', '1984-03-17');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (72, 'Brandais', 'Mellisent', 'Joyson', 'mjoyson1z', 'uWvdByQ', 'mjoyson1z@bloomberg.com', '6352365873', '1989-05-03');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (73, 'Olivie', 'Carlynne', 'Mival', 'cmival20', 'qa5gLeb', 'cmival20@marriott.com', '4481214826', '1956-12-24');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (74, 'Efren', 'Kristin', 'Barajaz', 'kbarajaz21', 'POqdkuRX', 'kbarajaz21@behance.net', '7111749867', '1974-05-14');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (75, 'Coral', 'Zeb', 'Cyson', 'zcyson22', 'h0tavdViHp', 'zcyson22@networkadvertising.org', '5712193409', '1961-10-28');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (76, 'Ted', 'Kare', 'Dumingos', 'kdumingos23', 'oBS4ob', 'kdumingos23@economist.com', '5208350510', '1963-07-02');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (77, 'Edouard', 'Randal', 'Itscowics', 'ritscowics24', '1UPS7jDstN', 'ritscowics24@sfgate.com', '4099518911', '1979-07-20');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (78, 'Lucky', 'Starlene', 'Stallibrass', 'sstallibrass25', 'K6l9iYKMwmN', 'sstallibrass25@nymag.com', '2583032895', '1994-04-27');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (79, 'Opaline', 'Fowler', 'Lie', 'flie26', 'UL04bxoZBln', 'flie26@dedecms.com', '3129888563', '1977-06-13');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (80, 'Daloris', 'Babara', 'Thominga', 'bthominga27', '0tv9Fz6s', 'bthominga27@chronoengine.com', '9012509448', '1980-01-28');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (81, 'Andriana', 'Jeffy', 'Rossi', 'jrossi28', 'YnmfO1aZYH', 'jrossi28@goo.gl', '7824102691', '1995-10-26');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (82, 'Dawn', 'Claudell', 'Yemm', 'cyemm29', 'YVz2y62seFrF', 'cyemm29@narod.ru', '6533901087', '1968-03-27');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (83, 'Ceil', 'Ollie', 'Hedworth', 'ohedworth2a', 'Z6F0dkuvo', 'ohedworth2a@vinaora.com', '1898012083', '1962-06-18');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (84, 'Danila', 'Dulciana', 'Possa', 'dpossa2b', 'MjWyhm7GeU', 'dpossa2b@tmall.com', '8891156841', '1991-09-16');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (85, 'Frasco', 'Chrisse', 'Prate', 'cprate2c', 'YfsdnIyKu', 'cprate2c@amazonaws.com', '8855238559', '1980-05-11');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (86, 'Waylen', 'Briggs', 'Juanes', 'bjuanes2d', 'W8tkKdrJq', 'bjuanes2d@chron.com', '8124802325', '1960-06-29');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (87, 'Dillie', 'Horacio', 'Sedgeworth', 'hsedgeworth2e', 'h98mRzR', 'hsedgeworth2e@boston.com', '2837967917', '1974-05-01');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (88, 'Harrietta', 'Hurleigh', 'Dinnington', 'hdinnington2f', 't6Xmxe7gxlFm', 'hdinnington2f@lulu.com', '1531876219', '1954-10-16');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (89, 'Reyna', 'Nickolaus', 'Duff', 'nduff2g', 'jTTW8DuM', 'nduff2g@opensource.org', '5742747773', '2004-04-22');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (90, 'Anatol', 'Darrelle', 'Wibrew', 'dwibrew2h', 'tln86a', 'dwibrew2h@usatoday.com', '4557169254', '1982-12-09');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (91, 'Che', 'Cross', 'Rodbourne', 'crodbourne2i', 'odd9HgL5j8TP', 'crodbourne2i@bravesites.com', '5301493150', '2006-12-05');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (92, 'Riva', 'Karin', 'McPhillimey', 'kmcphillimey2j', 'mrUpA5EOQDPR', 'kmcphillimey2j@360.cn', '5682379225', '1988-09-21');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (93, 'Nicolina', 'Ailene', 'Hackney', 'ahackney2k', 'EqdUT8JMW', 'ahackney2k@unesco.org', '6383320171', '1984-12-14');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (94, 'Sherline', 'Merilyn', 'McReynolds', 'mmcreynolds2l', '1pL5bjyJ3', 'mmcreynolds2l@webeden.co.uk', '4938794746', '1976-02-08');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (95, 'Nolly', 'Klaus', 'Nelius', 'knelius2m', '2bhHZl69D', 'knelius2m@geocities.jp', '5336630635', '1972-01-14');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (96, 'Wang', 'Lynnett', 'Kores', 'lkores2n', 'v2nHkpYD4wSs', 'lkores2n@dyndns.org', '7537030418', '2009-04-19');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (97, 'Shaine', 'Corrianne', 'Aggis', 'caggis2o', '5amBpjIy3QC', 'caggis2o@wordpress.org', '4127912608', '1987-08-14');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (98, 'Lianne', 'Rosita', 'Barbe', 'rbarbe2p', 'kE7OJtziyCFm', 'rbarbe2p@hud.gov', '7902022060', '1977-11-01');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (99, 'Bernardine', 'Wandis', 'Duffet', 'wduffet2q', 'nLqhhGzc', 'wduffet2q@scribd.com', '8292954750', '2005-08-07');
+INSERT INTO biblioteka."Uzytkownicy" (id_uzytkownika, imie, drugie_imie, nazwisko, login, haslo, email, telefon, data_urodzenia) VALUES (100, 'Jayme', 'Art', 'Bambrick', 'abambrick2r', '56D5PQ4Ax0', 'abambrick2r@list-manage.com', '2891944731', '1980-03-21');
+
+
+--
+-- TOC entry 3049 (class 0 OID 525064)
+-- Dependencies: 203
+-- Data for Name: Wydawnictwa; Type: TABLE DATA; Schema: biblioteka; Owner: postgres
+--
+
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (1, 'Andromeda');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (2, 'Antlia');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (3, 'Apus');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (4, 'Aquarius');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (5, 'Aquila');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (6, 'Ara');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (7, 'Aries');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (8, 'Auriga');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (9, 'Bootes');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (10, 'Caelum');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (11, 'Camelopardalis');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (12, 'Cancer');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (13, 'Canes Venatici');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (14, 'Canis Maior');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (15, 'Canis Minor');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (16, 'Capricornus');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (17, 'Carina');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (18, 'Cassiopeia');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (19, 'Centaurus');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (20, 'Cepheus');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (21, 'Cetus');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (22, 'Chamaeleon');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (23, 'Circinus');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (24, 'Columba');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (25, 'Coma Berenices');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (26, 'Corona Australis');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (27, 'Corona Borealis');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (28, 'Corvus');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (29, 'Crater');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (30, 'Crux');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (31, 'Cygnus');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (32, 'Delphinus');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (33, 'Dorado');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (34, 'Draco');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (35, 'Equuleus');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (36, 'Eridanus');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (37, 'Fornax');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (38, 'Gemini');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (39, 'Grus');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (40, 'Hercules');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (41, 'Horologium');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (42, 'Hydra');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (43, 'Hydrus');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (44, 'Indus');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (45, 'Lacerta');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (46, 'Leo');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (47, 'Leo Minor');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (48, 'Lepus');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (49, 'Libra');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (50, 'Lupus');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (51, 'Lynx');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (52, 'Lyra');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (53, 'Mensa');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (54, 'Microscopium');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (55, 'Monoceros');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (56, 'Musca');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (57, 'Norma');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (58, 'Octans');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (59, 'Ophiuchus');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (60, 'Orion');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (61, 'Pavo');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (62, 'Pegasus');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (63, 'Perseus');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (64, 'Phoenix');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (65, 'Pictor');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (66, 'Pisces');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (67, 'Piscis Austrinus');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (68, 'Puppis');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (69, 'Pyxis');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (70, 'Reticulum');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (71, 'Sagitta');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (72, 'Sagittarius');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (73, 'Scorpius');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (74, 'Sculptor');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (75, 'Scutum');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (76, 'Serpens');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (77, 'Sextans');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (78, 'Taurus');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (79, 'Telescopium');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (80, 'Triangulum');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (81, 'Triangulum Australe');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (82, 'Tucana');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (83, 'Ursa Maior');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (84, 'Ursa Minor');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (85, 'Vela');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (86, 'Virgo');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (87, 'Volans');
+INSERT INTO biblioteka."Wydawnictwa" (id_wydawnictwa, nazwa) VALUES (88, 'Vulpecula');
+
+
+--
+-- TOC entry 3054 (class 0 OID 525098)
+-- Dependencies: 208
+-- Data for Name: Wypozyczenia; Type: TABLE DATA; Schema: biblioteka; Owner: postgres
+--
+
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (1, 1, 1, '2020-10-11', '2021-01-28', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (2, 2, 2, '2020-12-05', '2021-02-26', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (3, 3, 3, '2020-08-14', '2021-05-22', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (4, 4, 4, '2020-07-26', '2021-05-21', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (5, 5, 5, '2020-10-10', '2021-02-22', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (6, 6, 6, '2020-10-10', '2021-04-15', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (7, 7, 7, '2020-10-02', '2021-04-16', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (8, 8, 8, '2020-07-02', '2021-01-25', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (9, 9, 9, '2020-08-05', '2021-04-23', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (10, 10, 10, '2020-07-20', '2021-04-02', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (11, 11, 11, '2020-07-12', '2021-04-29', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (12, 12, 12, '2020-12-24', '2021-04-03', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (13, 13, 13, '2020-07-24', '2021-05-23', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (14, 14, 14, '2020-12-20', '2021-03-09', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (15, 15, 15, '2020-11-15', '2021-03-19', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (16, 16, 16, '2020-09-16', '2021-01-23', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (17, 17, 17, '2020-07-23', '2021-01-02', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (18, 18, 18, '2020-12-16', '2021-04-26', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (19, 19, 19, '2020-10-26', '2021-03-31', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (20, 20, 20, '2020-09-02', '2021-03-05', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (21, 21, 21, '2020-10-14', '2021-02-20', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (22, 22, 22, '2020-12-04', '2021-04-30', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (23, 23, 23, '2020-08-03', '2021-06-04', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (24, 24, 24, '2020-11-17', '2021-04-26', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (25, 25, 25, '2020-09-17', '2021-04-20', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (26, 26, 26, '2020-06-27', '2021-04-08', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (27, 27, 27, '2020-06-14', '2021-03-25', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (28, 28, 28, '2020-10-14', '2021-02-21', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (29, 29, 29, '2020-07-02', '2021-05-09', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (30, 30, 30, '2020-07-19', '2021-03-18', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (31, 31, 31, '2020-07-04', '2021-03-07', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (32, 32, 32, '2020-08-21', '2021-05-24', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (33, 33, 33, '2020-07-06', '2021-03-24', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (34, 34, 34, '2020-07-13', '2021-06-06', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (35, 35, 35, '2020-12-16', '2021-01-04', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (36, 36, 36, '2020-08-14', '2021-05-11', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (37, 37, 37, '2020-08-18', '2021-01-24', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (38, 38, 38, '2020-07-14', '2021-04-13', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (39, 39, 39, '2020-07-04', '2021-05-12', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (40, 40, 40, '2020-06-08', '2021-01-25', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (41, 41, 41, '2020-09-18', '2021-01-31', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (42, 42, 42, '2020-10-19', '2021-04-28', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (43, 43, 43, '2020-09-27', '2021-05-20', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (44, 44, 44, '2020-06-20', '2021-05-20', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (45, 45, 45, '2020-12-23', '2021-04-10', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (46, 46, 46, '2020-09-18', '2021-03-13', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (47, 47, 47, '2020-08-21', '2021-02-01', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (48, 48, 48, '2020-12-01', '2021-04-01', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (49, 49, 49, '2020-06-29', '2021-03-22', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (50, 50, 50, '2020-06-29', '2021-01-14', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (51, 51, 51, '2020-10-29', '2021-01-19', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (52, 52, 52, '2020-10-13', '2021-04-29', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (53, 53, 53, '2020-06-19', '2021-06-01', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (54, 54, 54, '2020-10-14', '2021-06-04', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (55, 55, 55, '2020-06-21', '2021-05-22', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (56, 56, 56, '2020-08-16', '2021-04-05', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (57, 57, 57, '2020-09-06', '2021-04-28', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (58, 58, 58, '2020-11-15', '2021-03-12', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (59, 59, 59, '2020-07-19', '2021-05-25', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (60, 60, 60, '2020-10-21', '2021-03-23', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (61, 61, 61, '2020-09-22', '2021-03-28', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (62, 62, 62, '2020-12-29', '2021-01-30', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (63, 63, 63, '2020-08-02', '2021-05-22', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (64, 64, 64, '2020-08-19', '2021-03-20', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (65, 65, 65, '2020-08-31', '2021-01-08', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (66, 66, 66, '2020-10-30', '2021-01-08', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (67, 67, 67, '2020-09-13', '2021-05-30', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (68, 68, 68, '2020-08-27', '2021-02-11', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (69, 69, 69, '2020-07-02', '2021-02-11', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (70, 70, 70, '2020-12-16', '2021-05-26', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (71, 71, 71, '2020-07-08', '2021-02-06', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (72, 72, 72, '2020-12-15', '2021-03-22', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (73, 73, 73, '2020-09-21', '2021-01-05', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (74, 74, 74, '2020-09-03', '2021-03-15', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (75, 75, 75, '2020-10-10', '2021-03-06', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (76, 76, 76, '2020-11-29', '2021-01-28', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (77, 77, 77, '2020-06-25', '2021-01-19', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (78, 78, 78, '2020-10-04', '2021-03-31', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (79, 79, 79, '2020-12-04', '2021-04-27', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (80, 80, 80, '2020-07-27', '2021-01-11', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (81, 81, 81, '2020-07-19', '2021-03-17', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (82, 82, 82, '2020-12-03', '2021-02-10', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (83, 83, 83, '2020-11-13', '2021-02-06', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (84, 84, 84, '2020-12-06', '2021-01-04', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (85, 85, 85, '2020-11-28', '2021-01-26', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (86, 86, 86, '2020-12-30', '2021-04-04', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (87, 87, 87, '2020-10-06', '2021-01-23', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (88, 88, 88, '2020-07-31', '2021-01-14', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (89, 89, 89, '2020-08-22', '2021-03-11', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (90, 90, 90, '2020-10-05', '2021-02-19', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (91, 91, 91, '2020-07-06', '2021-01-07', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (92, 92, 92, '2020-12-15', '2021-01-01', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (93, 93, 93, '2020-09-05', '2021-03-21', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (94, 94, 94, '2020-12-09', '2021-05-06', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (95, 95, 95, '2020-12-16', '2021-02-12', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (96, 96, 96, '2020-12-13', '2021-03-16', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (97, 97, 97, '2020-12-12', '2021-05-02', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (98, 98, 98, '2020-08-10', '2021-01-18', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (99, 99, 99, '2020-09-04', '2021-05-17', 2);
+INSERT INTO biblioteka."Wypozyczenia" (id_wypozyczenia, id_uzytkownika, id_ksiazki, data_wypozyczenia, data_oddania, id_pracownika) VALUES (100, 100, 100, '2020-06-26', '2021-03-03', 2);
+
+
+--
+-- TOC entry 2894 (class 2606 OID 525063)
+-- Name: Autorzy Autorzy_pkey; Type: CONSTRAINT; Schema: biblioteka; Owner: postgres
+--
+
+ALTER TABLE ONLY biblioteka."Autorzy"
+    ADD CONSTRAINT "Autorzy_pkey" PRIMARY KEY (id_autora);
+
+
+--
+-- TOC entry 2892 (class 2606 OID 525055)
+-- Name: Kategorie Kategorie_pkey; Type: CONSTRAINT; Schema: biblioteka; Owner: postgres
+--
+
+ALTER TABLE ONLY biblioteka."Kategorie"
+    ADD CONSTRAINT "Kategorie_pkey" PRIMARY KEY (id_kategorie);
+
+
+--
+-- TOC entry 2898 (class 2606 OID 525076)
+-- Name: Ksiazki Ksiazki_pkey; Type: CONSTRAINT; Schema: biblioteka; Owner: postgres
+--
+
+ALTER TABLE ONLY biblioteka."Ksiazki"
+    ADD CONSTRAINT "Ksiazki_pkey" PRIMARY KEY (id_ksiazki);
+
+
+--
+-- TOC entry 2904 (class 2606 OID 525097)
+-- Name: Pracownicy Pracownicy_pkey; Type: CONSTRAINT; Schema: biblioteka; Owner: postgres
+--
+
+ALTER TABLE ONLY biblioteka."Pracownicy"
+    ADD CONSTRAINT "Pracownicy_pkey" PRIMARY KEY (id_pracownika);
+
+
+--
+-- TOC entry 2902 (class 2606 OID 525089)
+-- Name: Stanowisko Stanowisko_pkey; Type: CONSTRAINT; Schema: biblioteka; Owner: postgres
+--
+
+ALTER TABLE ONLY biblioteka."Stanowisko"
+    ADD CONSTRAINT "Stanowisko_pkey" PRIMARY KEY (id_stanowiska);
+
+
+--
+-- TOC entry 2900 (class 2606 OID 525084)
+-- Name: Uzytkownicy Uzytkownicy_pkey; Type: CONSTRAINT; Schema: biblioteka; Owner: postgres
+--
+
+ALTER TABLE ONLY biblioteka."Uzytkownicy"
+    ADD CONSTRAINT "Uzytkownicy_pkey" PRIMARY KEY (id_uzytkownika);
+
+
+--
+-- TOC entry 2896 (class 2606 OID 525068)
+-- Name: Wydawnictwa Wydawnictwa_pkey; Type: CONSTRAINT; Schema: biblioteka; Owner: postgres
+--
+
+ALTER TABLE ONLY biblioteka."Wydawnictwa"
+    ADD CONSTRAINT "Wydawnictwa_pkey" PRIMARY KEY (id_wydawnictwa);
+
+
+--
+-- TOC entry 2906 (class 2606 OID 525102)
+-- Name: Wypozyczenia Wypozyczenia_pkey; Type: CONSTRAINT; Schema: biblioteka; Owner: postgres
+--
+
+ALTER TABLE ONLY biblioteka."Wypozyczenia"
+    ADD CONSTRAINT "Wypozyczenia_pkey" PRIMARY KEY (id_wypozyczenia);
+
+
+--
+-- TOC entry 2914 (class 2620 OID 525272)
+-- Name: Ksiazki trigger_opis; Type: TRIGGER; Schema: biblioteka; Owner: postgres
+--
+
+CREATE TRIGGER trigger_opis BEFORE INSERT ON biblioteka."Ksiazki" FOR EACH ROW EXECUTE FUNCTION public.funkcja_opis();
+
+
+--
+-- TOC entry 2908 (class 2606 OID 525123)
+-- Name: Ksiazki Ksiazki_id_autora_fkey; Type: FK CONSTRAINT; Schema: biblioteka; Owner: postgres
+--
+
+ALTER TABLE ONLY biblioteka."Ksiazki"
+    ADD CONSTRAINT "Ksiazki_id_autora_fkey" FOREIGN KEY (id_autora) REFERENCES biblioteka."Autorzy"(id_autora) NOT VALID;
+
+
+--
+-- TOC entry 2909 (class 2606 OID 525128)
+-- Name: Ksiazki Ksiazki_id_kategorie_fkey; Type: FK CONSTRAINT; Schema: biblioteka; Owner: postgres
+--
+
+ALTER TABLE ONLY biblioteka."Ksiazki"
+    ADD CONSTRAINT "Ksiazki_id_kategorie_fkey" FOREIGN KEY (id_kategorie) REFERENCES biblioteka."Kategorie"(id_kategorie) NOT VALID;
+
+
+--
+-- TOC entry 2907 (class 2606 OID 525118)
+-- Name: Ksiazki Ksiazki_id_wydawnictwa_fkey; Type: FK CONSTRAINT; Schema: biblioteka; Owner: postgres
+--
+
+ALTER TABLE ONLY biblioteka."Ksiazki"
+    ADD CONSTRAINT "Ksiazki_id_wydawnictwa_fkey" FOREIGN KEY (id_wydawnictwa) REFERENCES biblioteka."Wydawnictwa"(id_wydawnictwa) NOT VALID;
+
+
+--
+-- TOC entry 2910 (class 2606 OID 525103)
+-- Name: Pracownicy Pracownicy_id_stanowiska_fkey; Type: FK CONSTRAINT; Schema: biblioteka; Owner: postgres
+--
+
+ALTER TABLE ONLY biblioteka."Pracownicy"
+    ADD CONSTRAINT "Pracownicy_id_stanowiska_fkey" FOREIGN KEY (id_stanowiska) REFERENCES biblioteka."Stanowisko"(id_stanowiska) NOT VALID;
+
+
+--
+-- TOC entry 2912 (class 2606 OID 525113)
+-- Name: Wypozyczenia Wypozyczenia_id_ksiazki_fkey; Type: FK CONSTRAINT; Schema: biblioteka; Owner: postgres
+--
+
+ALTER TABLE ONLY biblioteka."Wypozyczenia"
+    ADD CONSTRAINT "Wypozyczenia_id_ksiazki_fkey" FOREIGN KEY (id_ksiazki) REFERENCES biblioteka."Ksiazki"(id_ksiazki) NOT VALID;
+
+
+--
+-- TOC entry 2913 (class 2606 OID 525133)
+-- Name: Wypozyczenia Wypozyczenia_id_pracownika_fkey; Type: FK CONSTRAINT; Schema: biblioteka; Owner: postgres
+--
+
+ALTER TABLE ONLY biblioteka."Wypozyczenia"
+    ADD CONSTRAINT "Wypozyczenia_id_pracownika_fkey" FOREIGN KEY (id_pracownika) REFERENCES biblioteka."Pracownicy"(id_pracownika) NOT VALID;
+
+
+--
+-- TOC entry 2911 (class 2606 OID 525108)
+-- Name: Wypozyczenia Wypozyczenia_id_uzytkownika_fkey; Type: FK CONSTRAINT; Schema: biblioteka; Owner: postgres
+--
+
+ALTER TABLE ONLY biblioteka."Wypozyczenia"
+    ADD CONSTRAINT "Wypozyczenia_id_uzytkownika_fkey" FOREIGN KEY (id_uzytkownika) REFERENCES biblioteka."Uzytkownicy"(id_uzytkownika) NOT VALID;
+
+
+-- Completed on 2021-06-08 20:38:48
+
+--
+-- PostgreSQL database dump complete
+--
+
